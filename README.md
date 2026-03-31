@@ -29,6 +29,43 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+## Backend + Full Stack Startup (Express + MongoDB)
+
+This project includes an Express API backend for login/register and a MongoDB user store.
+
+1. Install server dependencies (if not already installed):
+   - `npm install express mongoose bcrypt cors dotenv`
+   - `npm install --save-dev concurrently`
+
+2. Start MongoDB locally or configure [MongoDB Atlas](https://www.mongodb.com/atlas) and set `.env`:
+   - `MONGODB_URI=mongodb://127.0.0.1:27017/vibetwitterlike`
+   - `BACKEND_PORT=5001`
+   - `PORT=3000` (React frontend)
+
+3. Start backend API server (from project root):
+   - `npm run start:server`
+
+4. Verify backend health: `GET http://localhost:5001/api/ping` should return `{ status: "ok", message: "Backend healthy" }`
+
+4. Start React development UI (from project root):
+   - `npm start`
+
+5. Or run both concurrently (if configured in package.json):
+   - `npm run dev`
+
+6. Login endpoint: `POST http://localhost:5001/api/login`
+   - payload: `{ "username": "user1", "password": "password123" }`
+
+7. Register endpoint: `POST http://localhost:5001/api/register`
+   - payload: `{ "name": "Jane Doe", "username": "jane", "email": "jane@example.com", "password": "password123", "dob": "1990-01-01" }`
+
+8. On successful login, the frontend logs `Login successful` in browser console.
+
+### Notes
+
+- API request proxy is configured through Create React App `proxy` setting in `package.json` so frontend can use `/api/*`.
+- Add auth token/cookie session in a next iteration.
+
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**

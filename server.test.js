@@ -40,13 +40,13 @@ describe('Authentication and audit logging', () => {
     const res = await request(app).post('/api/register').send({ username: 'testuser' });
 
     expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty('message', 'All fields are required.');
+    expect(res.body).toHaveProperty('message', 'Name, username, password, email and date of birth are required.');
 
     const log = await Log.findOne({ action: 'registration' }).sort({ createdAt: -1 });
     expect(log).not.toBeNull();
     expect(log.success).toBe(false);
     expect(log.level).toBe('ERROR');
-    expect(log.message).toBe('All fields are required.');
+    expect(log.message).toBe('Name, username, password, email and date of birth are required.');
   });
 
   test('should register successfully and log info', async () => {
@@ -69,6 +69,35 @@ describe('Authentication and audit logging', () => {
     expect(log.level).toBe('INFO');
     expect(log.message).toBe('User registered successfully.');
     expect(log.username).toBe('testuser');
+  });
+
+  test('should register with bio and avatar and return on user fetch', async () => {
+    const payload = {
+      name: 'Rich User',
+      username: 'richuser',
+      password: 'password123',
+      email: 'rich@example.com',
+      dob: '1985-05-05',
+      bio: 'Hello, I love microblogging.',
+      avatarUrl: 'https://example.com/avatar.jpg',
+    };
+
+    const res = await request(app).post('/api/register').send(payload);
+    expect(res.status).toBe(201);
+
+    const loginRes = await request(app).post('/api/login').send({ username: 'richuser', password: 'password123' });
+    expect(loginRes.status).toBe(200);
+    expect(loginRes.body.user).toHaveProperty('bio', 'Hello, I love microblogging.');
+    expect(loginRes.body.user).toHaveProperty('avatarUrl', 'https://example.com/avatar.jpg');
+
+    const profile = await request(app).get('/api/users/richuser');
+    expect(profile.status).toBe(200);
+    expect(profile.body.user).toHaveProperty('bio', 'Hello, I love microblogging.');
+    expect(profile.body.user).toHaveProperty('avatarUrl', 'https://example.com/avatar.jpg');
+
+    const log = await Log.findOne({ action: 'registration' }).sort({ createdAt: -1 });
+    expect(log).not.toBeNull();
+    expect(log.success).toBe(true);
   });
 
   test('should fail login with missing fields and log error', async () => {

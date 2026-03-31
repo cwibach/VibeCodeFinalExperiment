@@ -13,6 +13,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
@@ -244,35 +246,48 @@ function FeedPage({ user }) {
                       {post.body}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, gap: 1, flexWrap: 'wrap' }}>
-                      <Typography variant="body2">Likes: {post.likes || 0}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#ffffff' }}>
+                        Likes: {post.likes || 0}
+                      </Typography>
                       <Button
                         size="small"
                         variant={isLiked ? 'contained' : 'outlined'}
-                        color={isLiked ? 'secondary' : 'primary'}
+                        sx={{
+                          minWidth: 94,
+                          fontWeight: 600,
+                          color: isLiked ? '#000' : '#fff',
+                          backgroundColor: isLiked ? '#fff' : 'rgba(255,255,255,0.1)',
+                          borderColor: '#ffd600',
+                          '&:hover': {
+                            backgroundColor: isLiked ? '#f3f3f3' : 'rgba(255,255,255,0.2)',
+                          },
+                        }}
                         onClick={() => handleLikeToggle(post)}
                         disabled={actionLoading}
+                        aria-label={isLiked ? 'Unlike this post' : 'Like this post'}
+                        startIcon={isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       >
                         {isLiked ? 'Unlike' : 'Like'}
                       </Button>
                     </Box>
 
                     <Box sx={{ mt: 2, p: 1, bgcolor: '#f9f9f9', borderRadius: 1 }}>
-                      <Typography variant="subtitle2">Replies</Typography>
+                      <Typography variant="subtitle2" className="replies-title">Replies</Typography>
 
                       {Array.isArray(post.replies) && post.replies.length === 0 && (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" className="no-replies-text">
                           No replies yet.
                         </Typography>
                       )}
 
                       {Array.isArray(post.replies) && post.replies.map((reply, idx) => (
-                        <Paper key={`${post._id}-reply-${idx}`} variant="outlined" sx={{ p: 1, mt: 1 }}>
+                        <Paper key={`${post._id}-reply-${idx}`} variant="outlined" className="reply-card" sx={{ p: 1, mt: 1 }}>
                           <Typography variant="body2" component="p" sx={{ fontWeight: 'bold' }}>
                             <Button
                               size="small"
                               variant="text"
                               onClick={() => handleAuthorSelect(reply.authorUsername)}
-                              sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                              sx={{ textTransform: 'none', p: 0, minWidth: 'auto', color: '#c8ffd1' }}
                             >
                               {reply.authorName}
                             </Button>{' '}
@@ -300,6 +315,17 @@ function FeedPage({ user }) {
                           inputProps={{ maxLength: 280 }}
                           variant="outlined"
                           size="small"
+                          sx={{
+                            '& .MuiInputBase-input': {
+                              color: '#000000 !important',
+                            },
+                            '& .MuiInputLabel-root': {
+                              color: '#000000 !important',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(0,0,0,0.2) !important',
+                            },
+                          }}
                         />
                         <Button
                           sx={{ mt: 1 }}

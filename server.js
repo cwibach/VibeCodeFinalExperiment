@@ -72,9 +72,9 @@ mongoose
 
 app.post('/api/register', async (req, res) => {
   try {
-    const { name, username, password, email, dob } = req.body;
+    const { name, username, password, email, dob, bio, avatarUrl } = req.body;
 
-    const metadata = { name, username, email, dob };
+    const metadata = { name, username, email, dob, bio, avatarUrl };
 
     if (!name || !username || !password || !email || !dob) {
       await createLog({
@@ -82,10 +82,10 @@ app.post('/api/register', async (req, res) => {
         username: username || 'unknown',
         success: false,
         level: 'ERROR',
-        message: 'All fields are required.',
+        message: 'Name, username, password, email and date of birth are required.',
         metadata,
       });
-      return res.status(400).json({ success: false, message: 'All fields are required.' });
+      return res.status(400).json({ success: false, message: 'Name, username, password, email and date of birth are required.' });
     }
 
     const normalizedUsername = username.trim().toLowerCase();
@@ -115,6 +115,30 @@ app.post('/api/register', async (req, res) => {
       return res.status(409).json({ success: false, message: 'Email already exists.' });
     }
 
+    if (bio && bio.trim().length > 500) {
+      await createLog({
+        action: 'registration',
+        username: normalizedUsername,
+        success: false,
+        level: 'ERROR',
+        message: 'Bio must be 500 characters or fewer.',
+        metadata,
+      });
+      return res.status(400).json({ success: false, message: 'Bio must be 500 characters or fewer.' });
+    }
+
+    if (avatarUrl && avatarUrl.trim().length > 1000) {
+      await createLog({
+        action: 'registration',
+        username: normalizedUsername,
+        success: false,
+        level: 'ERROR',
+        message: 'Avatar URL must be 1000 characters or fewer.',
+        metadata,
+      });
+      return res.status(400).json({ success: false, message: 'Avatar URL must be 1000 characters or fewer.' });
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = new User({
@@ -123,6 +147,8 @@ app.post('/api/register', async (req, res) => {
       email: normalizedEmail,
       passwordHash,
       dob: new Date(dob),
+      bio: bio ? bio.trim() : '',
+      avatarUrl: avatarUrl ? avatarUrl.trim() : '',
     });
 
     await user.save();
@@ -203,6 +229,8 @@ app.post('/api/login', async (req, res) => {
       username: user.username,
       email: user.email,
       dob: user.dob ? user.dob.toISOString().split('T')[0] : '',
+      bio: user.bio || '',
+      avatarUrl: user.avatarUrl || '',
     };
 
     await createLog({
@@ -371,6 +399,8 @@ app.get('/api/users/:username', async (req, res) => {
       username: user.username,
       email: user.email,
       dob: user.dob ? user.dob.toISOString().split('T')[0] : '',
+      bio: user.bio || '',
+      avatarUrl: user.avatarUrl || '',
       createdAt: user.createdAt,
     };
 

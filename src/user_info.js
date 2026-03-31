@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Paper, Typography } from '@mui/material';
+import { Box, Container, Paper, Typography } from '@mui/material';
 
 function UserInfo({ user }) {
   if (!user) {
@@ -13,6 +13,12 @@ function UserInfo({ user }) {
           Profile
         </Typography>
 
+        {user.avatarUrl && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <img src={user.avatarUrl} alt={`${user.username} avatar`} style={{ width: 120, height: 120, borderRadius: '50%' }} />
+          </Box>
+        )}
+
         <Typography variant="subtitle1" sx={{ mt: 1 }}>
           Name: {user.name}
         </Typography>
@@ -25,6 +31,12 @@ function UserInfo({ user }) {
         <Typography variant="subtitle1" sx={{ mt: 1 }}>
           Date of Birth: {user.dob}
         </Typography>
+
+        {user.bio && (
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            Bio: {user.bio}
+          </Typography>
+        )}
       </Paper>
     </Container>
   );

@@ -27,6 +27,8 @@ function Register({ onSwitchToLogin }) {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [dobDay, setDobDay] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
   const handleCloseSnackbar = () => {
@@ -43,11 +45,33 @@ function Register({ onSwitchToLogin }) {
 
   const dobComplete = Boolean(name.trim() && username.trim() && password && email.trim() && dobDay && dobMonth && dobYear);
 
+  const isValidDob = (year, month, day) => {
+    const y = Number(year);
+    const m = Number(month);
+    const d = Number(day);
+    if (!y || !m || !d) return false;
+    const date = new Date(y, m - 1, d);
+    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+  };
+
+  const handleInvalidDob = () => {
+    setSnackbar({ open: true, message: 'Invalid date of birth selected. Please choose a real date.', severity: 'error' });
+    setDobDay('');
+    setDobMonth('');
+    setDobYear('');
+    setSubmitted(false);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitted(true);
 
     if (!dobComplete) {
+      return;
+    }
+
+    if (!isValidDob(dobYear, dobMonth, dobDay)) {
+      handleInvalidDob();
       return;
     }
 
@@ -57,7 +81,7 @@ function Register({ onSwitchToLogin }) {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, username, password, email, dob }),
+        body: JSON.stringify({ name, username, password, email, dob, bio, avatarUrl }),
       });
 
       const data = await response.json();
@@ -132,6 +156,30 @@ function Register({ onSwitchToLogin }) {
             required
             error={submitted && email.trim().length === 0}
             helperText={submitted && email.trim().length === 0 ? 'Email is required' : ''}
+          />
+
+          <TextField
+            id="bio"
+            label="Bio (optional)"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            margin="normal"
+            fullWidth
+            multiline
+            rows={3}
+            inputProps={{ maxLength: 500 }}
+            helperText={`${bio.length}/500`}
+          />
+
+          <TextField
+            id="avatarUrl"
+            label="Avatar URL (optional)"
+            type="url"
+            value={avatarUrl}
+            onChange={(e) => setAvatarUrl(e.target.value)}
+            margin="normal"
+            fullWidth
+            inputProps={{ maxLength: 1000 }}
           />
 
           <Typography variant="subtitle1" sx={{ mt: 2 }}>

@@ -30,24 +30,37 @@ function App() {
 
     return (
       <>
-        <AppBar position="static">
+        <AppBar
+          position="static"
+          sx={{
+            background: 'linear-gradient(90deg, rgba(255,0,212,0.92), rgba(74,0,255,0.94), rgba(0,255,246,0.9))',
+            borderBottom: '2px solid rgba(255,255,255,0.8)',
+            boxShadow: '0 0 20px rgba(120, 0, 255, 0.75)',
+          }}
+        >
           <Toolbar sx={{ justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Button
-                color={activePage === 'profile' ? 'secondary' : 'inherit'}
+                className={activePage === 'profile' ? 'nav-button active-nav' : 'nav-button'}
+                variant={activePage === 'profile' ? 'contained' : 'outlined'}
                 onClick={() => setActivePage('profile')}
+                aria-pressed={activePage === 'profile'}
               >
                 Profile
               </Button>
               <Button
-                color={activePage === 'feed' ? 'secondary' : 'inherit'}
+                className={activePage === 'feed' ? 'nav-button active-nav' : 'nav-button'}
+                variant={activePage === 'feed' ? 'contained' : 'outlined'}
                 onClick={() => setActivePage('feed')}
+                aria-pressed={activePage === 'feed'}
               >
                 Global Feed
               </Button>
               <Button
-                color={activePage === 'post' ? 'secondary' : 'inherit'}
+                className={activePage === 'post' ? 'nav-button active-nav' : 'nav-button'}
+                variant={activePage === 'post' ? 'contained' : 'outlined'}
                 onClick={() => setActivePage('post')}
+                aria-pressed={activePage === 'post'}
               >
                 New Post
               </Button>
@@ -63,7 +76,7 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        <Container sx={{ mt: 3 }}>
+        <Container className={`page-${activePage}`} sx={{ mt: 3 }}>
           {activePage === 'profile' && <UserInfo user={user} />}
           {activePage === 'feed' && <FeedPage user={user} />}
           {activePage === 'post' && <PostPage user={user} />}
@@ -72,8 +85,10 @@ function App() {
     );
   };
 
+  const appClassName = mode === 'dashboard' ? `App page-${activePage}` : 'App';
+
   return (
-    <div className="App">
+    <div className={appClassName}>
       {mode === 'login' && (
         <Login onSwitchToRegister={() => setMode('register')} onLoginSuccess={handleLoginSuccess} />
       )}
